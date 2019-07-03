@@ -43,15 +43,15 @@ BasicGame.Preloader.prototype = {
 		
 		
 		// load theme's
-		game.load.image('mushroom1', 'assets/images/mushroom1.png');
-    	game.load.image('snail', 'assets/images/snail.png');
+		game.load.spritesheet('mushroom1', 'assets/images/mushroom1.png', 64, 64);
+    	game.load.spritesheet('snail', 'assets/images/snail.png', 128, 64);
     
-    	game.load.image('mushroom2h', 'assets/images/mushroom2h.png');
-    	game.load.image('mushroom3h', 'assets/images/mushroom3h.png');
+    	game.load.spritesheet('mushroom2h', 'assets/images/mushroom2h.png', 128, 64);
+    	game.load.spritesheet('mushroom3h', 'assets/images/mushroom3h.png', 192, 64);
     
-		game.load.image('mushroom2v', 'assets/images/mushroom2v.png');
-    	game.load.image('mushroom3v', 'assets/images/mushroom3v.png');
-		game.load.image('gridbg', 'assets/images/gridbackground.png');
+		game.load.spritesheet('mushroom2v', 'assets/images/mushroom2v.png', 64, 128);
+    	game.load.spritesheet('mushroom3v', 'assets/images/mushroom3v.png', 64, 192);
+		game.load.spritesheet('gridbg', 'assets/images/gridbackground.png', 448, 384);
 		
 		game.load.image('i_check', 'assets/images/check.png');
 		
@@ -78,6 +78,18 @@ BasicGame.Preloader.prototype = {
 		game.load.image('b_exit', 'assets/images/button_exit-game.png');
 		game.load.image('b_return', 'assets/images/undo.png');
 		game.load.image('b_list', 'assets/images/list.png');
+		
+		// thema buttons
+		game.load.image('b_wood', 'assets/images/thema_wood.png');
+		game.load.image('b_marble', 'assets/images/thema_marble.png');
+		game.load.image('b_car', 'assets/images/thema_car.png');
+		game.load.image('b_animal', 'assets/images/thema_animal.png');
+		
+		// dialog
+		game.load.image('b_dialog', 'assets/images/dialog.png');
+		game.load.image('b_yes', 'assets/images/button_yes.png');
+		game.load.image('b_no', 'assets/images/button_no.png');
+		
 		
 		// level select
 		game.load.image('b_level', 'assets/images/level.png');

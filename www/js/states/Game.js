@@ -27,6 +27,10 @@ var board;
 // bevat 'auto' obejecten
 var car;
 
+var	b_dialog;
+var	b_yes;
+var	b_no;
+
 var spriteSize = 64;	// fysieke afmeting
 var CellSize = 48;		// grid size on display
 var shifty = 0; 		// de dhift die nodig is om het grod in het midden te ktrijgen
@@ -44,28 +48,33 @@ var moves = 0;
 var lastx = 0;
 var lasty = 0;
 
+var currentThema = 2;
 
 function drawBorder() {
 	  // boven
     for (var i = 0; i< 7; i++) {
 		var sp =this.game.add.sprite(i * CellSize, (shifty-1) * CellSize, 'mushroom1');    
+		sp.frame = currentThema;
 		sp.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
         //BasicGame.game.add.sprite(i * CellSize, CellSize, 'mushroom1');            
     }
     // onder
     for (var i = 0; i< 8; i++) {
         sp = this.game.add.sprite(i * CellSize, (6 + shifty) * CellSize, 'mushroom1');
+		sp.frame = currentThema;
 		sp.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
     }
     // links
     for (var i = (shifty-1); i< (6 + shifty); i++) {
         sp = this.game.add.sprite(0, i * CellSize, 'mushroom1');            
+		sp.frame = currentThema;
 		sp.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
     }
     // rechts
      for (var i = (shifty-1); i< (6 + shifty); i++) {
         if (i!=(4+shifty-2))  {
             sp = this.game.add.sprite(7 * CellSize, i * CellSize, 'mushroom1'); 
+			sp.frame = currentThema;
 			sp.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
         }
     }
@@ -345,6 +354,7 @@ function drawLevel() {
 		
 		// put car in board	
 		carsprite = this.game.add.sprite(boardx2realx(car[i].x), boardy2realy(car[i].y), spritenaam);
+		carsprite.frame = currentThema;
 		carsprite.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
 		carsprite.carindex = i;
 		car[i].realx = boardx2realx(car[i].x);
@@ -373,13 +383,18 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function onLevelComplete()
-{
+function removeCars(){
 	// de sprites van vorige level verwijderen
 	for (i=0; i<car.length; i++)
 	{
     	car[i].carImage.destroy();
 	}
+}
+
+function onLevelComplete()
+{
+	// de sprites van vorige level verwijderen
+	removeCars();
 		
 	// level up
 	textLevel.text = capitalizeFirstLetter(niveau) + " level " + currentLevel
@@ -408,6 +423,13 @@ function GetNiveau(){
 		localStorage.setItem(niveau + 'currentLevel',0);
 	}
 	currentLevel = localStorage.getItem(niveau + 'currentLevel');
+	
+	
+	if (localStorage.getItem('currentThema') === null){
+		localStorage.setItem('currentThema', '0');
+	}
+	currentThema = parseInt(localStorage.getItem('currentThema'));
+		
 }
 
 function NextLevel(){
@@ -430,25 +452,61 @@ function ResetLevel(){
 	onLevelComplete();
 }
 
+function setThema(buttonIndex){
+	if (buttonIndex.key == 'b_wood') {
+		currentThema = 0;
+	} 
+	else if (buttonIndex.key == 'b_car') {
+		currentThema = 1;
+	}
+	else if (buttonIndex.key == 'b_marble') {
+		currentThema = 2;
+	}
+	else if (buttonIndex.key == 'b_animal') {
+		currentThema = 3;
+	}
+
+	localStorage.setItem('currentThema', currentThema.toString());
+	
+	removeCars();
+	DrawBackground();
+	drawBorder();
+	drawLevel();
+}
+
 
 function onConfirm(buttonIndex) {
-	//alert(device.platform);
-	if (game.device.android && buttonIndex == 2) {
-		game.state.start('MainMenu');	
-	}
-	else if (!game.device.android && buttonIndex == 1) {
+	// buttons en dialog terug
+	b_dialog.x = game.width/2; 
+	b_dialog.y = -200;
+    
+	b_yes.x = game.width+200;
+	b_yes.y = game.world.height/2 + 40;
+	
+    b_no.x = -200;
+	b_no.y = game.world.height/2 + 40;
+		
+	if (buttonIndex.key == 'b_yes') {
 		game.state.start('MainMenu');	
 	}
 }
 
 function ReturnToMain() {	
-	navigator.notification.confirm(
-    'Going bsck to the main menu will reset the current level.\nAre you sure?', // message
-     onConfirm,            // callback to invoke with index of button pressed
-    'Back to main menu',           // title
-    ['No', 'Yes']     // buttonLabels
-	);	
-	//navigator.app.exitApp();
+	
+	b_dialog.bringToTop();
+	b_yes.bringToTop();
+	b_no.bringToTop();
+	
+	
+	game.add.tween(b_dialog).to({y: this.game.world.height/2}, 500, Phaser.Easing.Cubic.InOut, true, 0);
+	
+	game.add.tween(b_yes).to({y: this.game.world.height/2 + 40}, 500, Phaser.Easing.Cubic.InOut, true, 0);
+	game.add.tween(b_yes).to({x: this.game.world.width/2 + 50}, 500, Phaser.Easing.Cubic.InOut, true, 0);
+	
+	game.add.tween(b_no).to({y: this.game.world.height/2 + 40}, 500, Phaser.Easing.Cubic.InOut, true, 0);
+	game.add.tween(b_no).to({x: this.game.world.width/2 - 50}, 500, Phaser.Easing.Cubic.InOut, true, 0);
+	//tween_no.to({ y: this.game.world.height/2 + 50, x:this.game.world.width/2 + 50, 500, 'Linear', true, 0);
+	
 }
 
 
@@ -456,7 +514,11 @@ function SelectLevel() {
 	game.state.start('SelectLevel');	
 }
 
-
+function DrawBackground(){
+	gridbgImage = this.game.add.sprite(CellSize, shifty*CellSize, 'gridbg');
+	gridbgImage.frame = currentThema;
+	gridbgImage.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+}
 
 function DrawScreen() {
 	game.stage.backgroundColor = "#000000";
@@ -474,7 +536,7 @@ function DrawScreen() {
 	//bg = game.add.tileSprite(this.game.width/2, this.game.height/2, 'starfield');
     //bg.anchor.setTo(0.5, 0.5);
 	 
-	var centerY = (this.game.world.height + (7 + shifty) * CellSize)/2
+	var centerY = (7 + shifty) * CellSize + (this.game.world.height - (7 + shifty) * CellSize)/3*2
 	
 	b_border = game.add.sprite(3 * this.game.width/6, centerY, 'b_border');
     b_border.anchor.setTo(0.5, 0.5);
@@ -510,9 +572,50 @@ function DrawScreen() {
 	b_return.inputEnabled = true;
 	b_return.events.onInputDown.add(ReturnToMain, this);
 	
+	var centerYThema = (7 + shifty) * CellSize + (this.game.world.height - (7 + shifty) * CellSize)/3
+	b_wood = game.add.sprite(1 * this.game.width/5, centerYThema, 'b_wood');
+    b_wood.anchor.setTo(0.5, 0.5);
+	b_wood.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_wood.inputEnabled = true;
+	b_wood.events.onInputDown.add(setThema, this);
+	
+	b_car = game.add.sprite(2 * this.game.width/5, centerYThema, 'b_car');
+    b_car.anchor.setTo(0.5, 0.5);
+	b_car.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_car.inputEnabled = true;
+	b_car.events.onInputDown.add(setThema, this);
+	
+	b_marble = game.add.sprite(3 * this.game.width/5, centerYThema, 'b_marble');
+    b_marble.anchor.setTo(0.5, 0.5);
+	b_marble.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_marble.inputEnabled = true;
+	b_marble.events.onInputDown.add(setThema, this);
+	
+	b_animal = game.add.sprite(4 * this.game.width/5, centerYThema, 'b_animal');
+    b_animal.anchor.setTo(0.5, 0.5);
+	b_animal.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_animal.inputEnabled = true;
+	b_animal.events.onInputDown.add(setThema, this);
+	
 	i_check = game.add.sprite(2 * this.game.width/6, 18, 'i_check');
     i_check.anchor.setTo(0.5, 0.5);
 	i_check.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	
+	b_dialog = game.add.sprite(this.game.width/2, -200, 'b_dialog');
+    b_dialog.anchor.setTo(0.5, 0.5);
+	b_dialog.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	
+	b_yes = game.add.sprite(this.game.width+200, this.game.world.height/2 + 40, 'b_yes');
+    b_yes.anchor.setTo(0.5, 0.5);
+	b_yes.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_yes.inputEnabled = true;
+	b_yes.events.onInputDown.add(onConfirm, this);
+	
+	b_no = game.add.sprite(-200, this.game.world.height/2 + 40, 'b_no');
+    b_no.anchor.setTo(0.5, 0.5);
+	b_no.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	b_no.inputEnabled = true;
+	b_no.events.onInputDown.add(onConfirm, this);
 	
 	var style = { font: "20px Arial", fill: "#ffffff", align: "center" };
 	textLevel = game.add.text(game.world.centerX, 20, capitalizeFirstLetter(niveau) + " level " + currentLevel, style);
@@ -525,19 +628,8 @@ function DrawScreen() {
 	textMoves = game.add.text(game.world.centerX, 70, "moves " + moves, style);
     textMoves.anchor.set(0.5);
 	
-	gridbgImage = this.game.add.sprite(CellSize, shifty*CellSize, 'gridbg');
-	gridbgImage.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
+	DrawBackground();
   	drawBorder();
-}
-
-function drawLevelBackground() {
-	gridbgImage = this.game.add.sprite(CellSize, shifty*CellSize, 'gridbg');
-	gridbgImage.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
-	
-	
-	//pageTopImage = this.game.add.sprite(0, 0, 'i_top');
-	//pageTopImage.scale.setTo(CellSize / spriteSize, CellSize / spriteSize); 
-	
 }
 
 function GetProgres() {
